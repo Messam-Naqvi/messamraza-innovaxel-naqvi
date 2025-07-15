@@ -94,6 +94,32 @@ app.get('/shorten/:shortCode', async (req, res) => {
   }
 });
 
+
+
+app.put('/shorten/:shortCode', async (req, res, next) => {
+  const { shortCode } = req.params;
+  const { url } = req.body;
+
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ message: 'New URL is required' });
+  }
+
+  try {
+    const urlEntry = await Url.findOne({ shortCode });
+
+    if (!urlEntry) {
+      return res.status(404).json({ message: 'Short URL not found' });
+    }
+
+    req.urlEntry = urlEntry;
+    req.newUrl = url;
+    next();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error while updating URL' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
