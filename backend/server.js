@@ -26,6 +26,41 @@ const UrlSchema = new mongoose.Schema({
 });
 
 const Url = mongoose.model('Url', UrlSchema);
+const generateShortCode = () => {
+  return Math.random().toString(36).substring(2, 8);
+};
+
+app.post('/shorten', async (req, res) => {
+  const { url } = req.body;
+
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ message: 'URL is required' });
+  }
+
+  try {
+    const shortCode = generateShortCode();
+
+    const newUrl = new Url({
+      url,
+      shortCode,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    await newUrl.save();
+
+    res.status(201).json({
+      id: newUrl._id,
+      url: newUrl.url,
+      shortCode: newUrl.shortCode,
+      createdAt: newUrl.createdAt,
+      updatedAt: newUrl.updatedAt
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error while creating short URL' });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
