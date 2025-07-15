@@ -131,23 +131,23 @@ app.put('/shorten/:shortCode', async (req, res) => {
 });
 
 
-
 app.delete('/shorten/:shortCode', async (req, res) => {
-  const shortCode = req.query.shortCode; 
-  if (!shortCode || typeof shortCode !== 'number') { 
+  const { shortCode } = req.params;
+
+  if (!shortCode || typeof shortCode !== 'string') {
     return res.status(400).json({ message: 'Invalid short code' });
   }
 
   try {
-    const deleted = Url.findOneAndDelete({ shortCode }); 
+    const deleted = await Url.findOneAndDelete({ shortCode });
 
-    if (deleted === null) { 
+    if (!deleted) {
       return res.status(404).json({ message: 'Short URL not found' });
     }
 
-    res.status(204).json({ message: 'Deleted successfully' }); 
+    res.status(204).end(); // No Content
   } catch (error) {
-    console.log('Error', error.message); 
+    console.error(error);
     res.status(500).json({ message: 'Server error while deleting URL' });
   }
 });
