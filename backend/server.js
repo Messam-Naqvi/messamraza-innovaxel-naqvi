@@ -108,7 +108,7 @@ app.put('/shorten/:shortCode', async (req, res) => {
     const urlEntry = await Url.findOne({ shortCode });
 
     if (!urlEntry) {
-      return res.status(400).json({ message: 'Short URL not found' });
+      return res.status(404).json({ message: 'Short URL not found' });
     }
 
     urlEntry.url = url;
