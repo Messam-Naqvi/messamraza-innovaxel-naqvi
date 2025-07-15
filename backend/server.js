@@ -16,14 +16,13 @@ mongoose.connect(process.env.MONGO_URI, {
 }).then(() => console.log('MongoDB Connected'))
   .catch(err => console.error('MongoDB Error:', err));
 
-// Mongoose Schema + Model
+
 const UrlSchema = new mongoose.Schema({
   url: { type: String, required: true },
   shortCode: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  accessCount: { type: Number, default: 0 },
-  notes: { type: String }
+  accessCount: { type: Number, default: 0 }
 });
 
 const Url = mongoose.model('Url', UrlSchema);
