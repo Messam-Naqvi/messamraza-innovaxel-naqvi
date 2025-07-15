@@ -62,7 +62,7 @@ app.post('/shorten', async (req, res) => {
   }
 });
 
-
+// yaha se retrieve original URL from shortCode
 app.get('/shorten/:shortCode', async (req, res) => {
   const { shortCode } = req.params;
 
@@ -77,9 +77,9 @@ app.get('/shorten/:shortCode', async (req, res) => {
       return res.status(404).json({ message: 'Short URL not found' });
     }
 
-    
     urlEntry.accessCount += 1;
-    urlEntry.save(); 
+    await urlEntry.save();
+
     res.status(200).json({
       id: urlEntry._id,
       url: urlEntry.url,
@@ -93,7 +93,6 @@ app.get('/shorten/:shortCode', async (req, res) => {
     res.status(500).json({ message: 'Server error while retrieving URL' });
   }
 });
-
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
