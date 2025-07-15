@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>URL Shortener</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      padding: 40px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    input, button {
+      padding: 10px;
+      margin: 6px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .btn {
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #1f6392;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .result {
+      margin-top: 10px;
+      padding: 10px;
+      background: #ecf0f1;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔗 URL Shortener</h1>
+
+  <!-- Create Short URL -->
+  <div class="section">
+    <h3>Create Short URL</h3>
+    <input type="text" id="originalUrl" placeholder="Enter long URL" />
+    <button class="btn" onclick="createShortUrl()">Shorten</button>
+    <div class="result" id="createResult"></div>
+  </div>
+
+  <!-- Retrieve Original URL -->
+  <div class="section">
+    <h3>Get Original URL</h3>
+    <input type="text" id="shortCodeGet" placeholder="Enter short code (e.g., abc123)" />
+    <button class="btn" onclick="getOriginalUrl()">Retrieve</button>
+    <div class="result" id="getResult"></div>
+  </div>
+
+  <!-- Update Short URL -->
+  <div class="section">
+    <h3>Update Existing URL</h3>
+    <input type="text" id="shortCodeUpdate" placeholder="Enter short code" />
+    <input type="text" id="updatedUrl" placeholder="Enter new URL" />
+    <button class="btn" onclick="updateUrl()">Update</button>
+    <div class="result" id="updateResult"></div>
+  </div>
+
+  <!-- Delete Short URL -->
+  <div class="section">
+    <h3>Delete Short URL</h3>
+    <input type="text" id="shortCodeDelete" placeholder="Enter short code" />
+    <button class="btn" onclick="deleteUrl()">Delete</button>
+    <div class="result" id="deleteResult"></div>
+  </div>
+
+  
+  <div class="section">
+    <h3>Get URL Statistics</h3>
+    <input type="text" id="shortCodeStats" placeholder="Enter short code" />
+    <button class="btn" onclick="getStats()">Get Stats</button>
+    <div class="result" id="statsResult"></div>
+  </div>
+
+  <script>
+    const BASE_URL = 'http://localhost:5000/shorten'; 
+
+    async function createShortUrl() {
+      const url = document.getElementById('originalUrl').value;
+      const res = await fetch(BASE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      const data = await res.json();
+      document.getElementById('createResult').innerText = res.ok ?
+        `Short Code: ${data.shortCode}` :
+        `Error: ${data.message || 'Invalid URL'}`;
+    }
+
+    async function getOriginalUrl() {
+      const shortCode = document.getElementById('shortCodeGet').value;
+      const res = await fetch(`${BASE_URL}/${shortCode}`);
+      const data = await res.json();
+      document.getElementById('getResult').innerText = res.ok ?
+        `Original URL: ${data.url}` :
+        'Not found';
+    }
+
+    async function updateUrl() {
+      const shortCode = document.getElementById('shortCodeUpdate').value;
+      const url = document.getElementById('updatedUrl').value;
+      const res = await fetch(`${BASE_URL}/${shortCode}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      const data = await res.json();
+      document.getElementById('updateResult').innerText = res.ok ?
+        'URL updated successfully' : 'Failed to update';
+    }
+
+    async function deleteUrl() {
+      const shortCode = document.getElementById('shortCodeDelete').value;
+      const res = await fetch(`${BASE_URL}/${shortCode}`, {
+        method: 'DELETE'
+      });
+      document.getElementById('deleteResult').innerText = res.status === 204 ?
+        'Deleted successfully' : 'Not found';
+    }
+
+    async function getStats() {
+      const shortCode = document.getElementById('shortCodeStats').value;
+      const res = await fetch(`${BASE_URL}/${shortCode}/stats`);
+      const data = await res.json();
+      document.getElementById('statsResult').innerText = res.ok ?
+        `Access Count: ${data.accessCount}\nCreated At: ${data.createdAt}` :
+        'Stats not found';
+    }
+  </script>
+
+</body>
+</html>
